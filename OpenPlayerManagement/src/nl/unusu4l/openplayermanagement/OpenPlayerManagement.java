@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import nl.unusu4l.openplayermanagement.events.OnPlayerJoin;
 import nl.unusu4l.openplayermanagement.managers.SettingsManager;
 import nl.unusu4l.openplayermanagement.mysql.OPMMysql;
 
@@ -30,6 +31,9 @@ public class OpenPlayerManagement extends JavaPlugin {
 		
 		// Setup MYSQL
 		setupMYSQL();
+		
+		//Register Events
+		Bukkit.getPluginManager().registerEvents(new OnPlayerJoin(), this);
 	}
 	
 	private void setupMYSQL() {
