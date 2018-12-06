@@ -31,6 +31,7 @@ public class OnPlayerJoin implements Listener {
 			event.getPlayer().sendMessage(OpenPlayerManagement.PREFIX + "You have automatically logged in because your session was still valid.");
 			return;
 		}
+		
 	}
 
 	private boolean sessionExpired(Player player) {
@@ -50,6 +51,11 @@ public class OnPlayerJoin implements Listener {
 			@Override
 			public void run() {
 				count += 1;
+				if(UserUtils.isLoggedin(player.getUniqueId())) {
+					cancel();
+					return;
+				}
+				
 				if(count != times) {
 					player.sendMessage(OpenPlayerManagement.PREFIX + "You don't have an account. Please register one by doing /register <password> <password>.");
 				} else {
@@ -63,6 +69,7 @@ public class OnPlayerJoin implements Listener {
 	
 	private void sendRegisterRequest(Player player) {
 		UserUtils.getLoggedIn().put(player.getUniqueId(), false);
+		UserUtils.getNotRegistered().add(player.getUniqueId());
 		player.sendMessage(OpenPlayerManagement.PREFIX + "You don't have an account. Please register one by doing /register <password> <password>.");
 		new BukkitRunnable() {
 

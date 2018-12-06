@@ -6,7 +6,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import nl.unusu4l.openplayermanagement.commands.LoginCommand;
 import nl.unusu4l.openplayermanagement.events.OnPlayerJoin;
+import nl.unusu4l.openplayermanagement.events.OnPlayerMove;
 import nl.unusu4l.openplayermanagement.managers.SettingsManager;
 import nl.unusu4l.openplayermanagement.mysql.OPMMysql;
 
@@ -29,11 +31,16 @@ public class OpenPlayerManagement extends JavaPlugin {
 		// Sets the prefix to the configurable value and formats it to the right format(colors and spaces).
 		PREFIX = ChatColor.translateAlternateColorCodes('&', SettingsManager.get().getString("messages.prefix")) + ChatColor.RESET + " ";
 		
-		// Setup MYSQL
+		// Setup MYSQL.
 		setupMYSQL();
 		
-		//Register Events
+		// Register Events.
 		Bukkit.getPluginManager().registerEvents(new OnPlayerJoin(), this);
+		Bukkit.getPluginManager().registerEvents(new OnPlayerMove(), this);
+		
+		// Register Commands.
+		getCommand("login").setExecutor(new LoginCommand());
+		getCommand("register").setExecutor(new RegisterCommand());
 	}
 	
 	private void setupMYSQL() {

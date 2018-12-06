@@ -2,6 +2,7 @@ package nl.unusu4l.openplayermanagement.mysql;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -149,6 +150,22 @@ public class OPMMysql {
 		}
 		return true;
 	}
+	
+	public static boolean passwordMatches(Player p, String password) {
+		try {
+			// Creates the connection.
+			Connection connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
+			Statement statement = connection.createStatement();
+			ResultSet rs = statement.executeQuery("SELECT password FROM users WHERE uuid='" + p.getUniqueId() + "'");
+			if(rs.next()) {
+				if(rs.getString("password").equals(password)) return true;
+			}
+			return false;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
 
 	public static boolean sessionExpired(Player p) {
 		try {
@@ -168,6 +185,38 @@ public class OPMMysql {
 			e.printStackTrace();
 		}
 		return true;
+	}
+
+	public static void makeUnsuccessfulLoginAttempt(Player player, String input) {
+		try {
+			// Creates the connection.
+			Connection connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
+			Statement statement = connection.createStatement();
+			
+			Date date = new Date(System.currentTimeMillis());
+			
+			statement.executeUpdate("INSERT INTO loginattempts (uuid, input, date, successful) VALUES  (" + player.getUniqueId() + 
+					", " + input + ", " + date + ", 0)");
+			return;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void makeSuccessfulLoginAttempt(Player player, String input) {
+		try {
+			// Creates the connection.
+			Connection connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
+			Statement statement = connection.createStatement();
+			
+			Date date = new Date(System.currentTimeMillis());
+			
+			statement.executeUpdate("INSERT INTO loginattempts (uuid, input, date, successful) VALUES  (" + player.getUniqueId() + 
+					", " + input + ", " + date + ", 1)");
+			return;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 	
 }
