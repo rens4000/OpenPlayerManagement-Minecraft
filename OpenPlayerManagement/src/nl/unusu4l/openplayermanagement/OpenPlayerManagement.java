@@ -47,12 +47,18 @@ public class OpenPlayerManagement extends JavaPlugin {
 		logger.info("[OpenPlayerManagement] OPM v" + getDescription().getVersion() + " has started.");
 	}
 	
+	/*
+	 * Registers all the commands.
+	 */
 	private void registerCommands() {
 		getCommand("login").setExecutor(new LoginCommand());
 		getCommand("register").setExecutor(new RegisterCommand());
 		logger.info("[OpenPlayerManagement] Commands have been registered.");
 	}
 
+	/*
+	 * Registers all the events.
+	 */
 	private void registerEvents() {
 		Bukkit.getPluginManager().registerEvents(new OnPlayerJoin(), this);
 		Bukkit.getPluginManager().registerEvents(new OnPlayerMove(), this);
@@ -61,6 +67,9 @@ public class OpenPlayerManagement extends JavaPlugin {
 		logger.info("[OpenPlayerManagement] Events have been registered.");
 	}
 
+	/*
+	 * Sets up the database.
+	 */
 	private void setupMYSQL() {
 		canConnectToDatabase();
 		if(startupcancelled) return;

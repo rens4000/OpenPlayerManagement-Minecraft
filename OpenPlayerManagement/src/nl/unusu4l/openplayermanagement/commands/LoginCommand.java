@@ -34,20 +34,32 @@ public class LoginCommand implements CommandExecutor {
 			return true;
 		}
 		
+		// Makes sure that the player uses the command in the right way.
 		if(args.length != 1) {
 			player.sendMessage(OpenPlayerManagement.PREFIX + ChatColor.RED + "You are using the command in the wrong way! Do: /login <password>");
 			return true;
 		}
 		
+		// Checks if the given password is the same as the registered password.
 		if(OPMMysql.passwordMatches(player.getUniqueId(), args[0].toString())) {
+			// Marks the player as logged in in the map.
 			UserUtils.getLoggedIn().put(player.getUniqueId(), true);
+			
+			// Tells the player that he/she has logged in.
 			player.sendMessage(OpenPlayerManagement.PREFIX + ChatColor.GREEN + "You have successfully logged in.");
+			
+			// Logs the attempt in the database.
 			OPMMysql.makeSuccessfulLoginAttempt(player.getUniqueId(), args[0].toString());
+			
+			// Creates the session.
 			OPMMysql.createSession(player.getUniqueId());
 			return true;
 		}
 		
-		player.sendMessage(OpenPlayerManagement.PREFIX + ChatColor.RED + "Attempt insuccessful. Try again!");
+		// Tells the player that the attempt was unsuccessful.
+		player.sendMessage(OpenPlayerManagement.PREFIX + ChatColor.RED + "Attempt unsuccessful. Try again!");
+		
+		// Logs the unsuccessful attempt.
 		OPMMysql.makeUnsuccessfulLoginAttempt(player.getUniqueId(), args[0].toString());
 		
 		return true;

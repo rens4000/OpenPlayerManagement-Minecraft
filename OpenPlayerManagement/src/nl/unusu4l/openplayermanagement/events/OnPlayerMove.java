@@ -12,6 +12,7 @@ public class OnPlayerMove implements Listener {
 	
 	@EventHandler
 	public void onPlayerMove(PlayerMoveEvent event) {
+		// Checks if the player hasn't logged in. If so: tell him to login/register.
 		if(!UserUtils.isLoggedin(event.getPlayer().getUniqueId())) {
 			event.setCancelled(true);
 			if(!UserUtils.getNotRegistered().contains(event.getPlayer().getUniqueId())) {

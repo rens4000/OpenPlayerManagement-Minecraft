@@ -18,36 +18,47 @@ public class OnPlayerJoin implements Listener {
 	
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
+		// Checks if the user has not been registered yet.
 		if(!OPMMysql.userHasBeenRegistered(event.getPlayer().getUniqueId())) {
 			sendRegisterRequest(event.getPlayer().getUniqueId());
 			return;
 		}
+		
+		// Checks if the user has no session.
 		if(!OPMMysql.userHasSession(event.getPlayer().getUniqueId())) {
 			promptLogin(event.getPlayer());
-			event.getPlayer().sendMessage("No session");
 			return;
-		} else {
+		} else { // If the user does.
+			// Check if the session has been expired.
 			if(sessionExpired(event.getPlayer().getUniqueId())) {
 				promptLogin(event.getPlayer());
 				return;
 			}
 			
+			// Check if the ip-addresses don't match.
 			if(!OPMMysql.ipMatches(event.getPlayer().getUniqueId())) {
 				promptLogin(event.getPlayer());
 				return;
 			}
 			
+			// If the session exists and is good to go: Log the player in and tell them why they could log in.
 			UserUtils.getLoggedIn().put(event.getPlayer().getUniqueId(), true);
-			event.getPlayer().sendMessage(OpenPlayerManagement.PREFIX + "You have automatically logged in because your session was still valid.");
+			event.getPlayer().sendMessage(OpenPlayerManagement.PREFIX + ChatColor.GOLD + "You have automatically logged in because your session was still valid.");
 			return;
 		}
 		
 	}
 
+	/*
+	 * Returns if the session has expired.
+	 */
 	private boolean sessionExpired(UUID uuid) {
 		return OPMMysql.sessionExpired(uuid);
 	}
 
+	/*
+	 * Prompts the player to login and kicks the player if he/she hasn't logged in in time.
+	 */
 	private void promptLogin(Player player) {
 		UserUtils.getLoggedIn().put(player.getUniqueId(), false);
 		player.sendMessage(OpenPlayerManagement.PREFIX + ChatColor.RED + "Please login: /login <password>!");
@@ -77,6 +88,9 @@ public class OnPlayerJoin implements Listener {
 		}.runTaskTimer(OpenPlayerManagement.getPlugin(OpenPlayerManagement.class), 0, 100);
 	}
 	
+	/*
+	 * Sends the player a message that he/she needs to register.
+	 */
 	private void sendRegisterRequest(UUID uuid) {
 		Player player = Bukkit.getPlayer(uuid);
 		UserUtils.getLoggedIn().put(uuid, false);

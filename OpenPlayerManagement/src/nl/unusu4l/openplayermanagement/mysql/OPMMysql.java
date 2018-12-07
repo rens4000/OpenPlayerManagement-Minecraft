@@ -15,6 +15,10 @@ import org.bukkit.entity.Player;
 
 import nl.unusu4l.openplayermanagement.managers.SettingsManager;
 
+/*
+ * TODO: COMMENT THE CODE FOR READABILITY.
+ */
+
 public class OPMMysql {
 	
 	private static  String username = SettingsManager.get().getString("mysql.username");
