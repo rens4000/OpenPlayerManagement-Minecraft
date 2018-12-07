@@ -7,6 +7,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 import org.bukkit.entity.Player;
@@ -213,6 +214,20 @@ public class OPMMysql {
 			
 			statement.executeUpdate("INSERT INTO loginattempts (uuid, input, date, successful) VALUES  (" + player.getUniqueId() + 
 					", " + input + ", " + date + ", 1)");
+			return;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void createUser(UUID uuid, String userPassword) {
+		try {
+			// Creates the connection.
+			Connection connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
+			Statement statement = connection.createStatement();
+			
+			statement.executeUpdate("INSERT INTO loginattempts (uuid, password) VALUES  (" + uuid + 
+					", " + userPassword + ")");
 			return;
 		} catch (SQLException e) {
 			e.printStackTrace();

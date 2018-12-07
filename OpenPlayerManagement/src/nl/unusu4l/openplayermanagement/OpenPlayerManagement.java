@@ -7,6 +7,9 @@ import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import nl.unusu4l.openplayermanagement.commands.LoginCommand;
+import nl.unusu4l.openplayermanagement.commands.RegisterCommand;
+import nl.unusu4l.openplayermanagement.events.OnBlockPlace;
+import nl.unusu4l.openplayermanagement.events.OnChat;
 import nl.unusu4l.openplayermanagement.events.OnPlayerJoin;
 import nl.unusu4l.openplayermanagement.events.OnPlayerMove;
 import nl.unusu4l.openplayermanagement.managers.SettingsManager;
@@ -37,6 +40,8 @@ public class OpenPlayerManagement extends JavaPlugin {
 		// Register Events.
 		Bukkit.getPluginManager().registerEvents(new OnPlayerJoin(), this);
 		Bukkit.getPluginManager().registerEvents(new OnPlayerMove(), this);
+		Bukkit.getPluginManager().registerEvents(new OnBlockPlace(), this);
+		Bukkit.getPluginManager().registerEvents(new OnChat(), this);
 		
 		// Register Commands.
 		getCommand("login").setExecutor(new LoginCommand());

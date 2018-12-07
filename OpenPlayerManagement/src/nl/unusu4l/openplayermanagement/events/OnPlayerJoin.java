@@ -57,7 +57,7 @@ public class OnPlayerJoin implements Listener {
 				}
 				
 				if(count != times) {
-					player.sendMessage(OpenPlayerManagement.PREFIX + "You don't have an account. Please register one by doing /register <password> <password>.");
+					player.sendMessage(OpenPlayerManagement.PREFIX + "You haven't logged in yet!");
 				} else {
 					player.kickPlayer(OpenPlayerManagement.PREFIX + ChatColor.RED + "You didn't login in time! Try it again.");
 					cancel();
