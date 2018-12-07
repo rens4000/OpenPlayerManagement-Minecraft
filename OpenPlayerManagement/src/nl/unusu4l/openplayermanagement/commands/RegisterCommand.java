@@ -21,7 +21,7 @@ public class RegisterCommand implements CommandExecutor {
 		}
 		Player player = (Player) sender;
 		if(UserUtils.isLoggedin(player.getUniqueId())) {
-			player.sendMessage(OpenPlayerManagement.PREFIX + ChatColor.RED + "You are already logged in with your account. You can't register a new one!");
+			player.sendMessage(OpenPlayerManagement.PREFIX + ChatColor.GOLD + "You are already logged in with your account. You can't register a new one!");
 			return true;
 		}
 		

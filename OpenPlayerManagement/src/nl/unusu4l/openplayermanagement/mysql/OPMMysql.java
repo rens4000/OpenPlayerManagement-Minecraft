@@ -10,6 +10,7 @@ import java.sql.Statement;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import nl.unusu4l.openplayermanagement.managers.SettingsManager;
@@ -49,7 +50,7 @@ public class OPMMysql {
 				Statement stmt = connection.createStatement();
 			      
 			      String sql = "CREATE TABLE users " +
-			                   "(id INTEGER not NULL, " +
+			                   "(id INTEGER(11) NOT NULL AUTO_INCREMENT, " +
 			                   " uuid VARCHAR(255), " + 
 			                   " email VARCHAR(84), " + 
 			                   " password VARCHAR(54), " + 
@@ -74,7 +75,7 @@ public class OPMMysql {
 				Statement stmt = connection.createStatement();
 			      
 			      String sql = "CREATE TABLE loginattempts " +
-			                   "(id INTEGER not NULL, " +
+			                   "(id INTEGER(11) not NULL AUTO_INCREMENT, " +
 			                   " uuid VARCHAR(255), " + 
 			                   " input TEXT(255), " + 
 			                   " date DATETIME, " + 
@@ -100,7 +101,7 @@ public class OPMMysql {
 				Statement stmt = connection.createStatement();
 			      
 			      String sql = "CREATE TABLE sessions " +
-			                   "(id INTEGER not NULL, " +
+			                   "(id INTEGER not NULL AUTO_INCREMENT, " +
 			                   " uuid VARCHAR(255), " + 
 			                   " duration BIGINT(255), " + 
 			                   " IP VARCHAR(255)," +
@@ -152,14 +153,14 @@ public class OPMMysql {
 		return true;
 	}
 	
-	public static boolean passwordMatches(Player p, String password) {
+	public static boolean passwordMatches(Player p, String userPassword) {
 		try {
 			// Creates the connection.
 			Connection connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
 			Statement statement = connection.createStatement();
 			ResultSet rs = statement.executeQuery("SELECT password FROM users WHERE uuid='" + p.getUniqueId() + "'");
 			if(rs.next()) {
-				if(rs.getString("password").equals(password)) return true;
+				if(rs.getString("password").equals(userPassword)) return true;
 			}
 			return false;
 		} catch (SQLException e) {
@@ -173,7 +174,7 @@ public class OPMMysql {
 			// Creates the connection.
 			Connection connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
 			Statement statement = connection.createStatement();
-			ResultSet rs = statement.executeQuery("SELECT duration FROM sessions WHERE uuid='" + p.getUniqueId() + "'");
+			ResultSet rs = statement.executeQuery("SELECT duration FROM sessions WHERE uuid='" + p.getUniqueId() + "' AND id=(SELECT MAX(id) FROM sessions WHERE uuid='" + p.getUniqueId() + "')");
 			if(rs.next()) {
 				long duration = rs.getLong("duration");
 				if(duration > System.currentTimeMillis()) {
@@ -196,8 +197,8 @@ public class OPMMysql {
 			
 			Date date = new Date(System.currentTimeMillis());
 			
-			statement.executeUpdate("INSERT INTO loginattempts (uuid, input, date, successful) VALUES  (" + player.getUniqueId() + 
-					", " + input + ", " + date + ", 0)");
+			statement.executeUpdate("INSERT INTO loginattempts (uuid, input, date, successful) VALUES  ('" + player.getUniqueId() + 
+					"', '" + input + "', '" + date + "', '0')");
 			return;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -212,8 +213,8 @@ public class OPMMysql {
 			
 			Date date = new Date(System.currentTimeMillis());
 			
-			statement.executeUpdate("INSERT INTO loginattempts (uuid, input, date, successful) VALUES  (" + player.getUniqueId() + 
-					", " + input + ", " + date + ", 1)");
+			statement.executeUpdate("INSERT INTO loginattempts (uuid, input, date, successful) VALUES  ('" + player.getUniqueId() + 
+					"', '" + input + "', '" + date + "', '1')");
 			return;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -226,12 +227,49 @@ public class OPMMysql {
 			Connection connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
 			Statement statement = connection.createStatement();
 			
-			statement.executeUpdate("INSERT INTO loginattempts (uuid, password) VALUES  (" + uuid + 
-					", " + userPassword + ")");
+			statement.executeUpdate("INSERT INTO users (uuid, password) VALUES  ('" + uuid + 
+					"', '" + userPassword + "')");
 			return;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static void createSession(UUID uuid) {
+		try {
+			// Creates the connection.
+			
+			Player player = Bukkit.getPlayer(uuid);
+			
+			long duration = System.currentTimeMillis() + 60000;
+			
+			Connection connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
+			Statement statement = connection.createStatement();
+			
+			statement.executeUpdate("INSERT INTO sessions (uuid, duration, ip) VALUES  ('" + uuid + 
+					"', '" + duration + "', '" + player.getAddress().getAddress().toString() + "')");
+			return;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static boolean ipMatches(UUID uuid) {
+		try {
+			// Creates the connection.
+			Connection connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
+			Statement statement = connection.createStatement();
+			ResultSet rs = statement.executeQuery("SELECT ip, id FROM sessions WHERE uuid='" + uuid + "' AND id=(SELECT MAX(id) FROM sessions)");
+			if(rs.next()) {
+				Player player = Bukkit.getPlayer(uuid);
+				player.sendMessage(rs.getInt("id") + " ");
+				if(!rs.getString("ip").equals(player.getAddress().getAddress().toString())) return false;
+			}
+			return true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 	
 }

@@ -2,3 +2,8 @@ name: OpenPlayerManagement
 version: 1.0
 main: nl.unusu4l.openplayermanagement.OpenPlayerManagement
 author: rens400
+commands:
+  login:
+    description: Login with your server account on the server.
+  register:
+    description: Register your server account on the server.

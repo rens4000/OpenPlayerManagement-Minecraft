@@ -21,12 +21,19 @@ public class OnPlayerJoin implements Listener {
 		}
 		if(!OPMMysql.userHasSession(event.getPlayer())) {
 			promptLogin(event.getPlayer());
+			event.getPlayer().sendMessage("No session");
 			return;
 		} else {
 			if(sessionExpired(event.getPlayer())) {
 				promptLogin(event.getPlayer());
 				return;
 			}
+			
+			if(!OPMMysql.ipMatches(event.getPlayer().getUniqueId())) {
+				promptLogin(event.getPlayer());
+				return;
+			}
+			
 			UserUtils.getLoggedIn().put(event.getPlayer().getUniqueId(), true);
 			event.getPlayer().sendMessage(OpenPlayerManagement.PREFIX + "You have automatically logged in because your session was still valid.");
 			return;
@@ -57,14 +64,14 @@ public class OnPlayerJoin implements Listener {
 				}
 				
 				if(count != times) {
-					player.sendMessage(OpenPlayerManagement.PREFIX + "You haven't logged in yet!");
+					player.sendMessage(OpenPlayerManagement.PREFIX + "Please login: /login <password>!");
 				} else {
 					player.kickPlayer(OpenPlayerManagement.PREFIX + ChatColor.RED + "You didn't login in time! Try it again.");
 					cancel();
 				}
 			}
 			
-		}.runTaskTimer(OpenPlayerManagement.getPlugin(OpenPlayerManagement.class), 100, 0);
+		}.runTaskTimer(OpenPlayerManagement.getPlugin(OpenPlayerManagement.class), 0, 100);
 	}
 	
 	private void sendRegisterRequest(Player player) {
