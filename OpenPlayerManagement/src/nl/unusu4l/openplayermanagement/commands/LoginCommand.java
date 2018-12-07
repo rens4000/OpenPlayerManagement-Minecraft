@@ -39,16 +39,16 @@ public class LoginCommand implements CommandExecutor {
 			return true;
 		}
 		
-		if(OPMMysql.passwordMatches(player, args[0].toString())) {
+		if(OPMMysql.passwordMatches(player.getUniqueId(), args[0].toString())) {
 			UserUtils.getLoggedIn().put(player.getUniqueId(), true);
 			player.sendMessage(OpenPlayerManagement.PREFIX + ChatColor.GREEN + "You have successfully logged in.");
-			OPMMysql.makeSuccessfulLoginAttempt(player, args[0].toString());
+			OPMMysql.makeSuccessfulLoginAttempt(player.getUniqueId(), args[0].toString());
 			OPMMysql.createSession(player.getUniqueId());
 			return true;
 		}
 		
 		player.sendMessage(OpenPlayerManagement.PREFIX + ChatColor.RED + "Attempt insuccessful. Try again!");
-		OPMMysql.makeUnsuccessfulLoginAttempt(player, args[0].toString());
+		OPMMysql.makeUnsuccessfulLoginAttempt(player.getUniqueId(), args[0].toString());
 		
 		return true;
 	}

@@ -121,12 +121,12 @@ public class OPMMysql {
 		createSessionsTabel(logger);
 	}
 
-	public static boolean userHasBeenRegistered(Player p) {
+	public static boolean userHasBeenRegistered(UUID uuid) {
 		try {
 			// Creates the connection.
 			Connection connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
 			Statement statement = connection.createStatement();
-			ResultSet rs = statement.executeQuery("SELECT id FROM users WHERE uuid='" + p.getUniqueId() + "'");
+			ResultSet rs = statement.executeQuery("SELECT id FROM users WHERE uuid='" + uuid + "'");
 			if(!rs.next()) {
 				return false;
 			}
@@ -137,12 +137,12 @@ public class OPMMysql {
 		return true;
 	}
 
-	public static boolean userHasSession(Player p) {
+	public static boolean userHasSession(UUID uuid) {
 		try {
 			// Creates the connection.
 			Connection connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
 			Statement statement = connection.createStatement();
-			ResultSet rs = statement.executeQuery("SELECT id FROM sessions WHERE uuid='" + p.getUniqueId() + "'");
+			ResultSet rs = statement.executeQuery("SELECT id FROM sessions WHERE uuid='" + uuid + "'");
 			if(!rs.next()) {
 				return false;
 			}
@@ -153,12 +153,12 @@ public class OPMMysql {
 		return true;
 	}
 	
-	public static boolean passwordMatches(Player p, String userPassword) {
+	public static boolean passwordMatches(UUID uuid, String userPassword) {
 		try {
 			// Creates the connection.
 			Connection connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
 			Statement statement = connection.createStatement();
-			ResultSet rs = statement.executeQuery("SELECT password FROM users WHERE uuid='" + p.getUniqueId() + "'");
+			ResultSet rs = statement.executeQuery("SELECT password FROM users WHERE uuid='" + uuid + "'");
 			if(rs.next()) {
 				if(rs.getString("password").equals(userPassword)) return true;
 			}
@@ -169,12 +169,12 @@ public class OPMMysql {
 		return false;
 	}
 
-	public static boolean sessionExpired(Player p) {
+	public static boolean sessionExpired(UUID uuid) {
 		try {
 			// Creates the connection.
 			Connection connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
 			Statement statement = connection.createStatement();
-			ResultSet rs = statement.executeQuery("SELECT duration FROM sessions WHERE uuid='" + p.getUniqueId() + "' AND id=(SELECT MAX(id) FROM sessions WHERE uuid='" + p.getUniqueId() + "')");
+			ResultSet rs = statement.executeQuery("SELECT duration FROM sessions WHERE uuid='" + uuid + "' AND id=(SELECT MAX(id) FROM sessions WHERE uuid='" + uuid + "')");
 			if(rs.next()) {
 				long duration = rs.getLong("duration");
 				if(duration > System.currentTimeMillis()) {
@@ -189,7 +189,7 @@ public class OPMMysql {
 		return true;
 	}
 
-	public static void makeUnsuccessfulLoginAttempt(Player player, String input) {
+	public static void makeUnsuccessfulLoginAttempt(UUID uuid, String input) {
 		try {
 			// Creates the connection.
 			Connection connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
@@ -197,7 +197,7 @@ public class OPMMysql {
 			
 			Date date = new Date(System.currentTimeMillis());
 			
-			statement.executeUpdate("INSERT INTO loginattempts (uuid, input, date, successful) VALUES  ('" + player.getUniqueId() + 
+			statement.executeUpdate("INSERT INTO loginattempts (uuid, input, date, successful) VALUES  ('" + uuid + 
 					"', '" + input + "', '" + date + "', '0')");
 			return;
 		} catch (SQLException e) {
@@ -205,7 +205,7 @@ public class OPMMysql {
 		}
 	}
 	
-	public static void makeSuccessfulLoginAttempt(Player player, String input) {
+	public static void makeSuccessfulLoginAttempt(UUID uuid, String input) {
 		try {
 			// Creates the connection.
 			Connection connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
@@ -213,7 +213,7 @@ public class OPMMysql {
 			
 			Date date = new Date(System.currentTimeMillis());
 			
-			statement.executeUpdate("INSERT INTO loginattempts (uuid, input, date, successful) VALUES  ('" + player.getUniqueId() + 
+			statement.executeUpdate("INSERT INTO loginattempts (uuid, input, date, successful) VALUES  ('" + uuid + 
 					"', '" + input + "', '" + date + "', '1')");
 			return;
 		} catch (SQLException e) {

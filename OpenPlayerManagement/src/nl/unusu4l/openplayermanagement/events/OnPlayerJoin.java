@@ -1,5 +1,8 @@
 package nl.unusu4l.openplayermanagement.events;
 
+import java.util.UUID;
+
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,16 +18,16 @@ public class OnPlayerJoin implements Listener {
 	
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
-		if(!OPMMysql.userHasBeenRegistered(event.getPlayer())) {
-			sendRegisterRequest(event.getPlayer());
+		if(!OPMMysql.userHasBeenRegistered(event.getPlayer().getUniqueId())) {
+			sendRegisterRequest(event.getPlayer().getUniqueId());
 			return;
 		}
-		if(!OPMMysql.userHasSession(event.getPlayer())) {
+		if(!OPMMysql.userHasSession(event.getPlayer().getUniqueId())) {
 			promptLogin(event.getPlayer());
 			event.getPlayer().sendMessage("No session");
 			return;
 		} else {
-			if(sessionExpired(event.getPlayer())) {
+			if(sessionExpired(event.getPlayer().getUniqueId())) {
 				promptLogin(event.getPlayer());
 				return;
 			}
@@ -41,8 +44,8 @@ public class OnPlayerJoin implements Listener {
 		
 	}
 
-	private boolean sessionExpired(Player player) {
-		return OPMMysql.sessionExpired(player);
+	private boolean sessionExpired(UUID uuid) {
+		return OPMMysql.sessionExpired(uuid);
 	}
 
 	private void promptLogin(Player player) {
@@ -74,9 +77,10 @@ public class OnPlayerJoin implements Listener {
 		}.runTaskTimer(OpenPlayerManagement.getPlugin(OpenPlayerManagement.class), 0, 100);
 	}
 	
-	private void sendRegisterRequest(Player player) {
-		UserUtils.getLoggedIn().put(player.getUniqueId(), false);
-		UserUtils.getNotRegistered().add(player.getUniqueId());
+	private void sendRegisterRequest(UUID uuid) {
+		Player player = Bukkit.getPlayer(uuid);
+		UserUtils.getLoggedIn().put(uuid, false);
+		UserUtils.getNotRegistered().add(uuid);
 		player.sendMessage(OpenPlayerManagement.PREFIX + "You don't have an account. Please register one by doing /register <password> <password>.");
 		new BukkitRunnable() {
 
