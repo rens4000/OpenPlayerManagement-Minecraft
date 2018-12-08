@@ -8,5 +8,5 @@ web ui to manage your players like a real boss. This plugin will
 in the future also include punishments like: bans, kicks, mutes, warnings.
 
 ## What stage is the plugin?
-The plugin is currently in ALPHA. That means that the plugin
+The plugin is currently in BETA. That means that the plugin
 isn't usable at all!
