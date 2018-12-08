@@ -203,7 +203,6 @@ public class OPMMysql {
 			
 			statement.executeUpdate("INSERT INTO loginattempts (uuid, input, date, successful) VALUES  ('" + uuid + 
 					"', '" + input + "', '" + date + "', '0')");
-			return;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -219,7 +218,6 @@ public class OPMMysql {
 			
 			statement.executeUpdate("INSERT INTO loginattempts (uuid, input, date, successful) VALUES  ('" + uuid + 
 					"', '" + input + "', '" + date + "', '1')");
-			return;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -233,7 +231,19 @@ public class OPMMysql {
 			
 			statement.executeUpdate("INSERT INTO users (uuid, password) VALUES  ('" + uuid + 
 					"', '" + userPassword + "')");
-			return;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void changePassword(UUID uuid, String userPassword) {
+		try {
+			// Creates the connection.
+			
+			Connection connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
+			Statement statement = connection.createStatement();
+			
+			statement.executeUpdate("UPDATE users SET password='" + userPassword + "' WHERE uuid='" + uuid + "'");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -245,14 +255,13 @@ public class OPMMysql {
 			
 			Player player = Bukkit.getPlayer(uuid);
 			
-			long duration = System.currentTimeMillis() + 60000;
+			long duration = System.currentTimeMillis() + 600000;
 			
 			Connection connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
 			Statement statement = connection.createStatement();
 			
 			statement.executeUpdate("INSERT INTO sessions (uuid, duration, ip) VALUES  ('" + uuid + 
 					"', '" + duration + "', '" + player.getAddress().getAddress().toString() + "')");
-			return;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -266,7 +275,6 @@ public class OPMMysql {
 			ResultSet rs = statement.executeQuery("SELECT ip, id FROM sessions WHERE uuid='" + uuid + "' AND id=(SELECT MAX(id) FROM sessions)");
 			if(rs.next()) {
 				Player player = Bukkit.getPlayer(uuid);
-				player.sendMessage(rs.getInt("id") + " ");
 				if(!rs.getString("ip").equals(player.getAddress().getAddress().toString())) return false;
 			}
 			return true;

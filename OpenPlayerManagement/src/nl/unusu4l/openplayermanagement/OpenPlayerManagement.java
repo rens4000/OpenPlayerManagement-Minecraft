@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import nl.unusu4l.openplayermanagement.commands.ChangePasswordCommand;
 import nl.unusu4l.openplayermanagement.commands.LoginCommand;
 import nl.unusu4l.openplayermanagement.commands.RegisterCommand;
 import nl.unusu4l.openplayermanagement.events.OnBlockPlace;
@@ -53,6 +54,7 @@ public class OpenPlayerManagement extends JavaPlugin {
 	private void registerCommands() {
 		getCommand("login").setExecutor(new LoginCommand());
 		getCommand("register").setExecutor(new RegisterCommand());
+		getCommand("changepassword").setExecutor(new ChangePasswordCommand());
 		logger.info("[OpenPlayerManagement] Commands have been registered.");
 	}
 

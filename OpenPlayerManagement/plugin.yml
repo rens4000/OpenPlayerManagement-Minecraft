@@ -7,3 +7,5 @@ commands:
     description: Login with your server account on the server.
   register:
     description: Register your server account on the server.
+  changepassword:
+    description: Change the password of your account.
