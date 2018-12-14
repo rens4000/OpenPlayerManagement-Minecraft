@@ -1,7 +1,5 @@
 package nl.unusu4l.openplayermanagement;
 
-import java.util.logging.Logger;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -15,19 +13,20 @@ import nl.unusu4l.openplayermanagement.events.OnPlayerJoin;
 import nl.unusu4l.openplayermanagement.events.OnPlayerMove;
 import nl.unusu4l.openplayermanagement.managers.SettingsManager;
 import nl.unusu4l.openplayermanagement.mysql.OPMMysql;
+import nl.unusu4l.openplayermanagement.utils.OPMLogger;
 
 public class OpenPlayerManagement extends JavaPlugin {
 	
 	public static String PREFIX;
 	
-	private Logger logger;
+	private OPMLogger logger;
 	
 	private boolean startupcancelled = false;
 	
 	@Override
 	public void onEnable() {
 		// Sets the logger.
-		logger = Bukkit.getLogger();
+		logger = new OPMLogger(getServer().getConsoleSender());
 		
 		// Sets up the settingsmanager.
 		setupSettingsManager();
@@ -53,8 +52,8 @@ public class OpenPlayerManagement extends JavaPlugin {
 	 */
 	private void registerCommands() {
 		getCommand("login").setExecutor(new LoginCommand());
-		getCommand("register").setExecutor(new RegisterCommand());
-		getCommand("changepassword").setExecutor(new ChangePasswordCommand());
+		getCommand("register").setExecutor(new RegisterCommand(logger));
+		getCommand("changepassword").setExecutor(new ChangePasswordCommand(logger));
 		logger.info("[OpenPlayerManagement] Commands have been registered.");
 	}
 
@@ -125,6 +124,9 @@ public class OpenPlayerManagement extends JavaPlugin {
 		SettingsManager.get().addDefault("mysql.username", "root");
 		SettingsManager.get().addDefault("mysql.password", "");
 		SettingsManager.get().addDefault("mysql.database", database);
+		
+		// Logmode default.
+		SettingsManager.get().addDefault("extralogmode", true);
 		
 		// If the defaults don't exist. Make them.
 		SettingsManager.get().options().copyDefaults(true);

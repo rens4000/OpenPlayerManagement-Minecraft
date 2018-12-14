@@ -78,7 +78,7 @@ public class OnPlayerJoin implements Listener {
 				}
 				
 				if(count != times) {
-					player.sendMessage(OpenPlayerManagement.PREFIX + "Please login: /login <password>!");
+					player.sendMessage(OpenPlayerManagement.PREFIX + ChatColor.RED + "Please login: /login <password>!");
 				} else {
 					player.kickPlayer(OpenPlayerManagement.PREFIX + ChatColor.RED + "You didn't login in time! Try it again.");
 					cancel();

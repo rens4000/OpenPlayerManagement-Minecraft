@@ -2,12 +2,13 @@ package nl.unusu4l.openplayermanagement.managers;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+
+import nl.unusu4l.openplayermanagement.utils.OPMLogger;
 
 public class SettingsManager {
 	
@@ -17,7 +18,7 @@ public class SettingsManager {
     /*
      * Sets up the configFile.
      */
-    public static void setup(Logger logger) {
+    public static void setup(OPMLogger logger) {
     	// Creates the folder object to prevent errors.
     	configFolder = new File("plugins/OpenPlayerManagement/");
     	

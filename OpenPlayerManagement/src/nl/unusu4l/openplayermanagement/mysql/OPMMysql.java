@@ -1,5 +1,6 @@
 package nl.unusu4l.openplayermanagement.mysql;
 
+import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.Date;
@@ -8,12 +9,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import nl.unusu4l.openplayermanagement.managers.SettingsManager;
+import nl.unusu4l.openplayermanagement.utils.OPMLogger;
 
 /*
  * TODO: COMMENT THE CODE FOR READABILITY.
@@ -26,6 +27,12 @@ public class OPMMysql {
 	private static String database = SettingsManager.get().getString("mysql.database");
 	private static String host = SettingsManager.get().getString("mysql.host");
 	private static int port = SettingsManager.get().getInt("mysql.port");
+	
+	/*
+	 * 
+	 * GLOBAL MYSQL FUNCTIONS
+	 * 
+	 */
 	
 	/*
 	 * Checks if connection to the database can be made.
@@ -43,39 +50,71 @@ public class OPMMysql {
 		return true;
 	}
 	
-	static void createUsersTabel(Logger logger) {
+	/*
+	 * 
+	 * TABEL CREATION
+	 * 
+	 */
+	
+	private static void createSessionsTabel(OPMLogger logger) {
+		try {
+			// Creates the connection.
+			Connection connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
+			DatabaseMetaData databaseMeta = connection.getMetaData();
+			ResultSet tables = databaseMeta.getTables(null, null, "sessions", null);
+			if (!tables.next()) {
+				logger.highInfo("[OpenPlayerManagement] `sessions` tabel doesn't exist. Creating it.");
+				Statement stmt = connection.createStatement();
+			      
+			      String sql = "CREATE TABLE sessions " +
+			                   "(id INTEGER not NULL AUTO_INCREMENT, " +
+			                   " uuid VARCHAR(255), " + 
+			                   " duration BIGINT(255), " + 
+			                   " IP VARCHAR(255)," +
+			                   " PRIMARY KEY ( id ))"; 
+			      stmt.executeUpdate(sql);
+			}
+			logger.highInfo("[OpenPlayerManagement] `sessions` table exists. Continuing.");
+		} catch (SQLException e) {
+			// Prints any errors.
+			e.printStackTrace();
+		}
+	}
+	
+	private static void createUsersTabel(OPMLogger logger) {
 		try {
 			// Creates the connection.
 			Connection connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
 			DatabaseMetaData databaseMeta = connection.getMetaData();
 			ResultSet tables = databaseMeta.getTables(null, null, "users", null);
 			if (!tables.next()) {
-				logger.info("[OpenPlayerManagement] `users` table doesn't exist. Creating it.");
+				logger.highInfo("[OpenPlayerManagement] `users` table doesn't exist. Creating it.");
 				Statement stmt = connection.createStatement();
 			      
 			      String sql = "CREATE TABLE users " +
 			                   "(id INTEGER(11) NOT NULL AUTO_INCREMENT, " +
 			                   " uuid VARCHAR(255), " + 
 			                   " email VARCHAR(84), " + 
-			                   " password VARCHAR(54), " + 
+			                   " password VARCHAR(54), " +
+			                   " confirmed TINYINT(1), " +
 			                   " PRIMARY KEY ( id ))"; 
 			      stmt.executeUpdate(sql);
 			}
-			logger.info("[OpenPlayerManagement] `users` table exists. Continuing.");
+			logger.highInfo("[OpenPlayerManagement] `users` table exists. Continuing.");
 		} catch (SQLException e) {
 			// Prints any errors.
 			e.printStackTrace();
 		}
 	}
 
-	static void createLoginAttemptsTabel(Logger logger) {
+	private static void createLoginAttemptsTabel(OPMLogger logger) {
 		try {
 			// Creates the connection.
 			Connection connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
 			DatabaseMetaData databaseMeta = connection.getMetaData();
 			ResultSet tables = databaseMeta.getTables(null, null, "loginattempts", null);
 			if (!tables.next()) {
-				logger.info("[OpenPlayerManagement] `loginattempts` tabel doesn't exist. Creating it.");
+				logger.highInfo("[OpenPlayerManagement] `loginattempts` tabel doesn't exist. Creating it.");
 				Statement stmt = connection.createStatement();
 			      
 			      String sql = "CREATE TABLE loginattempts " +
@@ -87,44 +126,26 @@ public class OPMMysql {
 			                   " PRIMARY KEY ( id ))"; 
 			      stmt.executeUpdate(sql);
 			}
-			logger.info("[OpenPlayerManagement] `loginattempts` table exists. Continuing.");
+			logger.highInfo("[OpenPlayerManagement] `loginattempts` table exists. Continuing.");
 		} catch (SQLException e) {
 			// Prints any errors.
 			e.printStackTrace();
 		}
 	}
 	
-	static void createSessionsTabel(Logger logger) {
-		try {
-			// Creates the connection.
-			Connection connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
-			DatabaseMetaData databaseMeta = connection.getMetaData();
-			ResultSet tables = databaseMeta.getTables(null, null, "sessions", null);
-			if (!tables.next()) {
-				logger.info("[OpenPlayerManagement] `sessions` tabel doesn't exist. Creating it.");
-				Statement stmt = connection.createStatement();
-			      
-			      String sql = "CREATE TABLE sessions " +
-			                   "(id INTEGER not NULL AUTO_INCREMENT, " +
-			                   " uuid VARCHAR(255), " + 
-			                   " duration BIGINT(255), " + 
-			                   " IP VARCHAR(255)," +
-			                   " PRIMARY KEY ( id ))"; 
-			      stmt.executeUpdate(sql);
-			}
-			logger.info("[OpenPlayerManagement] `sessions` table exists. Continuing.");
-		} catch (SQLException e) {
-			// Prints any errors.
-			e.printStackTrace();
-		}
-	}
-	
-	public static void createTabels(Logger logger) {
+	public static void createTabels(OPMLogger logger) {
 		createUsersTabel(logger);
 		createLoginAttemptsTabel(logger);
 		createSessionsTabel(logger);
 	}
-
+	
+	
+	/*
+	 * 
+	 * MYSQL CHECKS
+	 * 
+	 */
+	
 	public static boolean userHasBeenRegistered(UUID uuid) {
 		try {
 			// Creates the connection.
@@ -139,6 +160,23 @@ public class OPMMysql {
 			e.printStackTrace();
 		}
 		return true;
+	}
+	
+	public static boolean ipMatches(UUID uuid) {
+		try {
+			// Creates the connection.
+			Connection connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
+			Statement statement = connection.createStatement();
+			ResultSet rs = statement.executeQuery("SELECT ip, id FROM sessions WHERE uuid='" + uuid + "' AND id=(SELECT MAX(id) FROM sessions)");
+			if(rs.next()) {
+				Player player = Bukkit.getPlayer(uuid);
+				if(!rs.getString("ip").equals(player.getAddress().getAddress().toString())) return false;
+			}
+			return true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 	public static boolean userHasSession(UUID uuid) {
@@ -163,8 +201,9 @@ public class OPMMysql {
 			Connection connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
 			Statement statement = connection.createStatement();
 			ResultSet rs = statement.executeQuery("SELECT password FROM users WHERE uuid='" + uuid + "'");
+			String encryptedPassword = md5(userPassword);
 			if(rs.next()) {
-				if(rs.getString("password").equals(userPassword)) return true;
+				if(rs.getString("password").equals(encryptedPassword)) return true;
 			}
 			return false;
 		} catch (SQLException e) {
@@ -192,6 +231,12 @@ public class OPMMysql {
 		}
 		return true;
 	}
+	
+	/*
+	 * 
+	 * MYSQL INPUTS
+	 * 
+	 */
 
 	public static void makeUnsuccessfulLoginAttempt(UUID uuid, String input) {
 		try {
@@ -223,27 +268,36 @@ public class OPMMysql {
 		}
 	}
 
-	public static void createUser(UUID uuid, String userPassword) {
+	public static void createUser(UUID uuid, String userPassword, OPMLogger logger) {
 		try {
 			// Creates the connection.
 			Connection connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
 			Statement statement = connection.createStatement();
 			
-			statement.executeUpdate("INSERT INTO users (uuid, password) VALUES  ('" + uuid + 
-					"', '" + userPassword + "')");
+			String encryptedPassword = md5(userPassword);
+			
+			statement.executeUpdate("INSERT INTO users (uuid, password, confirmed) VALUES  ('" + uuid + 
+					"', '" + encryptedPassword + "', '0')");
+			
+			logger.highInfo("'" + uuid + "' has been registered as an user.");
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public static void changePassword(UUID uuid, String userPassword) {
+	public static void changePassword(UUID uuid, String userPassword, OPMLogger logger) {
 		try {
 			// Creates the connection.
 			
 			Connection connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
 			Statement statement = connection.createStatement();
 			
-			statement.executeUpdate("UPDATE users SET password='" + userPassword + "' WHERE uuid='" + uuid + "'");
+			String encryptedPassword = md5(userPassword);
+			
+			statement.executeUpdate("UPDATE users SET password='" + encryptedPassword + "' WHERE uuid='" + uuid + "'");
+			
+			logger.highInfo("'" + uuid + "' changed it's password.");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -266,22 +320,26 @@ public class OPMMysql {
 			e.printStackTrace();
 		}
 	}
-
-	public static boolean ipMatches(UUID uuid) {
-		try {
-			// Creates the connection.
-			Connection connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
-			Statement statement = connection.createStatement();
-			ResultSet rs = statement.executeQuery("SELECT ip, id FROM sessions WHERE uuid='" + uuid + "' AND id=(SELECT MAX(id) FROM sessions)");
-			if(rs.next()) {
-				Player player = Bukkit.getPlayer(uuid);
-				if(!rs.getString("ip").equals(player.getAddress().getAddress().toString())) return false;
-			}
-			return true;
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return false;
-	}
+	
+	/*
+	 * 
+	 * ENCRYPTION
+	 * 
+	 */
+	
+	private static final String md5(final String toEncrypt) {
+        try {
+            final MessageDigest digest = MessageDigest.getInstance("md5");
+            digest.update(toEncrypt.getBytes());
+            final byte[] bytes = digest.digest();
+            final StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < bytes.length; i++) {
+                sb.append(String.format("%02X", bytes[i]));
+            }
+            return sb.toString().toLowerCase();
+        } catch (Exception exc) {
+            return "";
+        }
+    }
 	
 }

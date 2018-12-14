@@ -8,9 +8,16 @@ import org.bukkit.entity.Player;
 
 import nl.unusu4l.openplayermanagement.OpenPlayerManagement;
 import nl.unusu4l.openplayermanagement.mysql.OPMMysql;
+import nl.unusu4l.openplayermanagement.utils.OPMLogger;
 import nl.unusu4l.openplayermanagement.utils.UserUtils;
 
 public class ChangePasswordCommand implements CommandExecutor {
+	
+	private OPMLogger logger;
+	
+	public ChangePasswordCommand(OPMLogger logger) {
+		this.logger = logger;
+	}
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -47,7 +54,7 @@ public class ChangePasswordCommand implements CommandExecutor {
 			return false;
 		}
 		
-		OPMMysql.changePassword(player.getUniqueId(), password);
+		OPMMysql.changePassword(player.getUniqueId(), password, logger);
 		player.sendMessage(OpenPlayerManagement.PREFIX + ChatColor.GREEN + "Your password has been changed.");
 		
 		return true;

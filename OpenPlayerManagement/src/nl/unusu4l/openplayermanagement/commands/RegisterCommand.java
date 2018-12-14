@@ -8,9 +8,16 @@ import org.bukkit.entity.Player;
 
 import nl.unusu4l.openplayermanagement.OpenPlayerManagement;
 import nl.unusu4l.openplayermanagement.mysql.OPMMysql;
+import nl.unusu4l.openplayermanagement.utils.OPMLogger;
 import nl.unusu4l.openplayermanagement.utils.UserUtils;
 
 public class RegisterCommand implements CommandExecutor {
+	
+	private OPMLogger logger;
+	
+	public RegisterCommand(OPMLogger logger) {
+		this.logger = logger;
+	}
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -51,7 +58,7 @@ public class RegisterCommand implements CommandExecutor {
 		}
 		
 		// Creates the user in the database.
-		OPMMysql.createUser(player.getUniqueId(), password);
+		OPMMysql.createUser(player.getUniqueId(), password, logger);
 		
 		// Removes the player from the not registered list.
 		UserUtils.getNotRegistered().remove(player.getUniqueId());
