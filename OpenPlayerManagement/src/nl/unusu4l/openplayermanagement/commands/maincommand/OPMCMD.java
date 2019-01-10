@@ -3,6 +3,7 @@ package nl.unusu4l.openplayermanagement.commands.maincommand;
 import org.bukkit.ChatColor;
 
 import nl.unusu4l.openplayermanagement.OpenPlayerManagement;
+import org.bukkit.entity.Player;
 
 public abstract class OPMCMD {
 	
@@ -18,7 +19,7 @@ public abstract class OPMCMD {
 		this.permission = permission;
 	}
 	
-	abstract void run();
+	abstract void run(Player player);
 
 	public String getName() {
 		return name;
